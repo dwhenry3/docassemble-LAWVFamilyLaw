@@ -69,9 +69,9 @@ code: |
   # --------------------------------------------
   ## Setting UUID and site for testing purposes
   # --------------------------------------------
-  legalserver_matter_uuid = "99807b68-5d67-5948-9a58-0dd478114f2e"
-  legalserver_site_abbreviation = "LAWV"
-  legalserver_site_type = "Demo"
+  #legalserver_matter_uuid = "99807b68-5d67-5948-9a58-0dd478114f2e"
+  #legalserver_site_abbreviation = "LAWV"
+  #legalserver_site_type = "Demo"
   # --------------------------------------------
   ## End setting
   # --------------------------------------------
@@ -506,7 +506,7 @@ attachment:
       - "accommodations": ${ accommodations }
       - "wheelchair": ${ "Yes" if client.is_disabled else "No" }
       - "interpreter": ${ "Yes" if client.interpreter else "No" }
-      - "r_address_line_one": ${ legalserver_adverse_parties[0].address.line_one() }
+      - "r_address_line_one": ${ legalserver_adverse_parties[0].address.line_one() }                            
       - "r_address_line_two": ${ legalserver_adverse_parties[0].address.line_two() }
       - "r_phone": ${ legalserver_adverse_parties[0].phone_home }
       - "r_gender": ${ legalserver_adverse_parties[0].gender.lower() }
