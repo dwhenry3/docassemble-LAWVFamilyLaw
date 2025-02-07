@@ -1,6 +1,6 @@
 import os
 import sys
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 from fnmatch import fnmatchcase
 from distutils.util import convert_path
 
@@ -44,7 +44,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.LAWVFamilyLaw',
-      version='0.0.6',
+      version='0.1.0',
       description=('A docassemble extension.'),
       long_description='LAWVFamilyLaw package for pulling information from LegalServer into Docassemble for the purposes of pre-populating WV Supreme Court of Appeals forms with information collected during LAWV intake process.',
       long_description_content_type='text/markdown',
@@ -52,9 +52,8 @@ setup(name='docassemble.LAWVFamilyLaw',
       author_email='dhenry@lawv.net',
       license='The MIT License (MIT)',
       url='https://docassemble.org',
-      packages=find_packages(),
-      namespace_packages=['docassemble'],
-      install_requires=[],
+      packages=find_namespace_packages(),
+      install_requires=['docassemble.LAWVCommon>=1.0.12', 'docassemble.LegalServerLink'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/LAWVFamilyLaw/', package='docassemble.LAWVFamilyLaw'),
      )
