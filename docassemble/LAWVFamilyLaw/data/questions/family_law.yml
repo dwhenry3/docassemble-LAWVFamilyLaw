@@ -10,10 +10,7 @@ metadata:
     - name: Dane W. Henry, Esq.
       organization: Legal Aid of West Virginia, Inc.
   revision_date: 2025-02-07
-  required privileges:
-    - admin
-    - developer
-    - advocate
+  require login: True
 ---
 include:
   - docassemble.LegalServerLink:data/questions/LSLink.yml
