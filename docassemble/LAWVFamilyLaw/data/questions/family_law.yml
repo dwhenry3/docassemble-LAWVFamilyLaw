@@ -9,7 +9,7 @@ metadata:
   authors:
     - name: Dane W. Henry, Esq.
       organization: Legal Aid of West Virginia, Inc.
-  revision_date: 2025-02-07
+  revision_date: 2025-02-09
   require login: True
 ---
 include:
@@ -31,6 +31,7 @@ objects:
   - cohabit: Address
   - debts: DAList.using(object_type=DAObject, complete_attribute='complete')
   - conveyed_property: DAList.using(object_type=DAObject, complete_attribute='complete')
+  - other_transfer_location: Address
 ---
 imports:
   - datetime
@@ -82,7 +83,7 @@ section: case
 question: |
   Answer the following:
 fields:
-  - Are you filing in **${ client.address.county } County**?: expected_county
+  - Are you filing in **Berkeley County**?: expected_county
     datatype: yesnoradio
   - In what county are you filing: filing_county
     input type: dropdown
@@ -92,21 +93,33 @@ fields:
       is: False
   - Filing with a fee waiver?: fee_waiver
     datatype: yesnoradio
+    grid: 6
+    label above field: True
+  - Is a DVPO in effect now?: dvpo
+    datatype: yesnoradio
+    grid: 6
+    label above field: True
   - Seeking spousal support?: seeking_spousal
     datatype: yesnoradio
+    grid: 6
+    label above field: True
     show if:
       code: |
         packet == "divorce_without" or packet == "divorce_with"
   - Seeking child support?: seeking_child_support
     datatype: yesnoradio
+    grid: 6
+    label above field: True
     show if:
       code: |
-        packet == "divorce_with"
+        packet == "divorce_with" or packet == "child_custody_without_divorce"
   - Is there an active CPS investigation, or one within the last year?: cps
     datatype: yesnoradio
+    grid: 6
+    label above field: True
     show if:
       code: |
-        packet == "divorce_with"
+        packet == "divorce_with" or packet == "child_custody_without_divorce"
   - Full Rep or Pro Se?: representation
     datatype: radio
     choices:
@@ -1852,10 +1865,9 @@ subquestion: |
   Using one of the "pre-built" options below will skip most follow-up questions
   and set the custody schedule accordingly:
 
-  * **Sole Custody** will seek to remove all of Petitioner's time  
-  * **Shared Custody** will select a week-on, week-off schedule with weekend exchanges  
-  * **Petitioner Primary** will give Respondent every other Fri-Sun  
-
+  * **Sole Custody** will seek to remove all of Respondent's time  
+  * **Shared Custody** will seek a 50/50, week-on, week-off schedule  
+  * **Petitioner Primary** will seek to give Respondent every other Fri-Sun Overnights 
 field: custody_schedule
 choices:
   - Sole Custody, Sole Decision Making: sole
@@ -2336,6 +2348,237 @@ fields:
       variable: restrictions
       is: restrictions
 ---
+section: custody
+question: |
+  Please provide the details proposed parenting plan
+subquestion: |
+  In lieu of the very annoying pages 5, 6, and 7 of the Parenting Plan,
+  this tool just allows for page 8 to be completed.  
+
+  If there is already some text, it is because you selected Sole Custody, Shared Custody,
+  or Petitioner Primary on a previous question.  Please add additional details as necessary.
+
+  SCA-FC-121 - Page 8
+fields:
+  - no label: detailed_parenting_plan
+    input type: area
+---
+section: custody
+question: | 
+  Vacation Times, Legal Custodian, and Transportation
+subquestion: |
+  SCA-FC-121 - Page 9-10
+fields:
+  - note: |
+      **Vacation/Summer**
+  - Vacation weeks with Petitioner: p_duration
+    datatype: integer
+    required: False
+    grid: 6
+    label above field: True
+  - Vacation weeks with Respondent: r_duration
+    datatype: integer
+    required: False
+    grid: 6
+    label above field: True
+  - note: |
+      **Legal Custodian**
+  - The legal custodian for the children is: legal_custodian
+    choices:
+      - Petitioner: petitioner
+      - Respondent: respondent
+      - Alternating: alternating
+  - note: |
+      **Transfers**
+  - Where should transfers occur?: transfer_location
+    choices:
+      - Petitioner's Residence: petitioners_residence
+      - Respondent's Residence: respondents_residence
+      - Child's School: childs_school
+      - Other Location: other
+      - Other Arrangements: other_arrangements
+  - Address of other location: other_transfer_location.address
+    address autocomplete: True
+    show if:
+      variable: transfer_location
+      is: other
+  - City: other_transfer_location.city
+    show if:
+      variable: transfer_location
+      is: other
+  - State: other_transfer_location.state
+    code: states_list()
+    default: WV
+    show if:
+      variable: transfer_location
+      is: other
+  - Zip: other_transfer_location.zip
+    show if:
+      variable: transfer_location
+      is: other
+  - Provide Details: transfer_detail
+    input type: area
+    show if:
+      variable: transfer_location
+      is: other_arrangements 
+  - note: |
+      **Transportation**
+  - no label: transportation_arrangements
+    input type: radio
+    choices:
+      - Everyday transportation provided by custodial parent: parent
+      - Other Arrangements: other
+  - Other Arrangements Details: transportation_details
+    input type: area
+    show if:
+      variable: transportation_arrangements
+      is: other  
+---
+section: custody
+question: |
+  Additional Custody Options
+fields:
+  - note: |
+      **Contact with non-custodial parent**
+  - Child may contact non-custodial parent: child_call
+    datatype: checkboxes
+    choices:
+      - At any time: anytime
+      - Weekdays: weekdays
+      - Weekends / Holidays: weekends
+      - Other: other
+  - Weekdays start time: child_call_weekday_from
+    label above field: True
+    grid: 4
+    js show if: |
+      val("child_call['weekdays']")
+  - no label: child_call_weekday_from_period
+    choices:
+      - AM: am
+      - PM: pm
+    label above field: True
+    grid: 2
+    js show if: |
+      val("child_call['weekdays']")
+  - Weekdays end time: child_call_weekday_to
+    label above field: True
+    grid: 4
+    js show if: |
+      val("child_call['weekdays']")
+  - no label: child_call_weekday_to_period
+    choices:
+      - AM: am
+      - PM: pm
+    label above field: True
+    grid: 2
+    js show if: |
+      val("child_call['weekdays']")
+  - Weekend start time: child_call_weekend_from
+    label above field: True
+    grid: 4
+    js show if: |
+      val("child_call['weekends']")
+  - no label: child_call_weekend_from_period
+    choices:
+      - AM: am
+      - PM: pm
+    label above field: True
+    grid: 2
+    js show if: |
+      val("child_call['weekends']")
+  - Weekdays end time: child_call_weekend_to
+    label above field: True
+    grid: 4
+    js show if: |
+      val("child_call['weekends']")
+  - no label: child_call_weekend_to_period
+    choices:
+      - AM: am
+      - PM: pm
+    label above field: True
+    grid: 2
+    js show if: |
+      val("child_call['weekends']")
+  - Other Arrangements: child_call_other_detail
+    js show if: |
+      val("child_call['other']")
+  - Non-custodial parent may contact child: parent_call
+    datatype: checkboxes
+    choices:
+      - At any time: anytime
+      - Weekdays: weekdays
+      - Weekends / Holidays: weekends
+      - Other: other
+  - Weekdays start time: parent_call_weekday_from
+    label above field: True
+    grid: 4
+    js show if: |
+      val("parent_call['weekdays']")
+  - no label: parent_call_weekday_from_period
+    choices:
+      - AM: am
+      - PM: pm
+    label above field: True
+    grid: 2
+    js show if: |
+      val("parent_call['weekdays']")
+  - Weekdays end time: parent_call_weekday_to
+    label above field: True
+    grid: 4
+    js show if: |
+      val("parent_call['weekdays']")
+  - no label: parent_call_weekday_to_period
+    choices:
+      - AM: am
+      - PM: pm
+    label above field: True
+    grid: 2
+    js show if: |
+      val("parent_call['weekdays']")
+  - Weekend start time: parent_call_weekend_from
+    label above field: True
+    grid: 4
+    js show if: |
+      val("parent_call['weekends']")
+  - no label: parent_call_weekend_from_period
+    choices:
+      - AM: am
+      - PM: pm
+    label above field: True
+    grid: 2
+    js show if: |
+      val("parent_call['weekends']")
+  - Weekdays end time: parent_call_weekend_to
+    label above field: True
+    grid: 4
+    js show if: |
+      val("parent_call['weekends']")
+  - no label: parent_call_weekend_to_period
+    choices:
+      - AM: am
+      - PM: pm
+    label above field: True
+    grid: 2
+    js show if: |
+      val("parent_call['weekends']")
+  - Other Arrangements: parent_call_other_detail
+    js show if: |
+      val("parent_call['other']")
+  - note: |
+      **Scheduling Activities on non-custodial parent's time**
+  - no label: not_scheduling_during_time
+    datatype: checkboxes
+    choices:
+      - Parent will not schedule activities during other parent's time unless agreed on in advance: yes
+    none of the above: True
+  - note: |
+      **Additional Terms**
+  - Do you have any additional terms you want to include?: additional_terms
+    datatype: yesnoradio
+  - What additional terms: additional_terms_details
+    input type: area
+    show if: additional_terms
+---
 generic object: DACatchAll
 question: |
   What is ${ x.object_name() }?
@@ -2425,6 +2668,72 @@ content: |
 
   *NOTE: This email address is not monitored.  Please do not reply to this message.*
 ---
+# Domestic Civil Case Information Statement -103
+attachment:
+  - name: sca_fc_103
+    filename: sca_fc_103
+    pdf template file: sca_fc_103.pdf
+    variable name: sca_fc_103
+    fields:
+      - "upper_county": ${ upper_county }
+      #- "case_num": something
+      #- "judge_name": something
+      - "p_name": ${ client.name.full(middle="full") }
+      - "r_name": ${ legalserver_adverse_parties[0].name.full(middle="full") }
+      - "confidential": ${ confidential }
+      - "p_address_line_one": ${ client.address.line_one() }
+      - "p_address_line_two": ${ client.address.line_two() }
+      - "p_phone": ${ client.phone_number }
+      - "p_gender": ${ client.gender.lower() }
+      - "p_dob": ${ client.birthdate }
+      - "p_ssn": ${ client.ssn }
+      - "p_race": ${ p_race }
+      - "minor_1_name": ${ children[0].name.full() if defined("children[0]") else ""}
+      - "minor_1_dob": ${ children[0].date_of_birth if (defined("children[0]") and defined("children[0].date_of_birth")) else ""}
+      - "minor_1_ssn": ${ children[0].ssn if (defined("children[0]") and defined("children[0].ssn")) else ""}
+      - "minor_2_name": ${ children[1].name.full() if defined("children[1]") else ""}
+      - "minor_2_dob": ${ children[1].date_of_birth if (defined("children[1]") and defined("children[1].date_of_birth")) else ""}
+      - "minor_2_ssn": ${ children[1].ssn if (defined("children[1]") and defined("children[1].ssn")) else ""}
+      - "minor_3_name": ${ children[2].name.full() if defined("children[2]") else ""}
+      - "minor_3_dob": ${ children[2].date_of_birth if (defined("children[2]") and defined("children[2].date_of_birth")) else ""}
+      - "minor_3_ssn": ${ children[2].ssn if (defined("children[2]") and defined("children[2].ssn")) else ""}
+      - "minor_4_name": ${ children[3].name.full() if defined("children[3]") else ""}
+      - "minor_4_dob": ${ children[3].date_of_birth if (defined("children[3]") and defined("children[3].date_of_birth")) else ""}
+      - "minor_4_ssn": ${ children[3].ssn if (defined("children[3]") and defined("children[3].ssn")) else ""}
+      - "accommodations": ${ accommodations }
+      - "wheelchair": ${ "Yes" if client.is_disabled else "No" }
+      - "interpreter": ${ "Yes" if client.interpreter else "No" }
+      - "r_address_line_one": ${ legalserver_adverse_parties[0].address.line_one() }                            
+      - "r_address_line_two": ${ legalserver_adverse_parties[0].address.line_two() }
+      - "r_phone": ${ legalserver_adverse_parties[0].phone_home }
+      - "r_gender": ${ legalserver_adverse_parties[0].gender.lower() }
+      - "r_ssn": ${ legalserver_adverse_parties[0].ssn }
+      - "r_dob": ${ legalserver_adverse_parties[0].date_of_birth }
+      - "r_race": ${ r_race }
+      - "divorce_without_children": ${ divorce_without_children }
+      - "divorce_with_children": ${ divorce_with_children }
+      - "grandparent_visitation": ${ grandparent_visitation }
+      - "annulment": ${ annulment }
+      - "separate_maintenance": ${ separate_maintenance }
+      - "child_support_only": ${ child_support_only }
+      - "child_custody_without_divorce": ${ child_custody_without_divorce }
+      - "paternity": ${ paternity }
+      - "modification": ${ modification }
+      - "contempt": ${ contempt }
+      - "infant_guardianship": ${ infant_guardianship }
+      - "other_relief": No
+      - "other_relief_detail": ""
+      - "alimony": ${ seeking_spousal if defined("seeking_spousal") else False}
+      - "dvpo": ${ dvpo }
+      - "cps": ${ cps if defined("cps") else False }
+      - "attorney": ${ "yes" if representation == "full_rep" else "no" }
+      - "attorney_name": ${ attorney_name if representation == "full_rep" else "" }
+      - "attorney_firm": ${ firm if representation == "full_rep" else "" }
+      - "attorney_address": ${ firm_address if representation == "full_rep" else "" }
+      - "attorney_phone": ${ firm_phone if representation == "full_rep" else "" }
+      #- "Signature": ${ user.signature }
+      #- "date": something
+---
 # Petition for Divorce - 101
 attachment:
   - name: sca_fc_101
@@ -2432,49 +2741,49 @@ attachment:
     pdf template file: sca_fc_101.pdf
     variable name: sca_fc_101
     fields:
-      - "upper_county": ${ client.address.county.upper() }
+      #- "upper_county": ${ client.address.county.upper() }
       #- "case_num": ${ case_number }
-      - "p_name": ${ client.name.full(middle="full") }
-      - "r_name": ${ legalserver_adverse_parties[0].name.full(middle="full") }
-      #- "dv_proceeding": No
-      #- "p_resident": Yes
-      #- "r_resident": No
-      #- "wv_married": No
+      #- "p_name": ${ client.name.full(middle="full") }
+      #- "r_name": ${ legalserver_adverse_parties[0].name.full(middle="full") }
+      - "dv_proceeding": ${ dvpo }
+      - "p_resident": ${ p_resident }
+      - "r_resident": ${ r_resident }
+      - "wv_married": ${ wv_married }
       - "county": ${ client.address.county }
-      #- "cohabitation": No
-      #- "r_resides": No
-      #- "p_resides": No
-      #- "other_jurisdiction": No
-      #- "other_jurisdiction_detail": "something"
+      - "cohabitation": ${ cohabitation }
+      - "r_resides": ${ r_resides }
+      - "p_resides": ${ p_resides }
+      - "other_jurisdiction": ${ other_jurisdiction }
+      - "other_jurisdiction_detail": ${ other_jurisdiction_detail if other_jurisdiction else ""}
       - "p_county": ${ client.address.county }
       - "r_county": ${ legalserver_adverse_parties[0].address.county }
       - "respondent_resides": |
           ${ "address_unknown" if not defined("legalserver_adverse_parties[0].address") else "in_wv" if legalserver_adverse_parties[0].address.state == "WV" else "out_of_state" }
       - "r_address": ${ legalserver_adverse_parties[0].address.on_one_line() if not legalserver_adverse_parties[0].address.state == "WV" else "" }
-      #- "marriage_county": "something"
-      #- "marriage_state": "something"
-      #- "marriage_day": "something"
-      #- "marriage_month": "something"
-      #- "marriage_year": "something"
-      #- "cohabit_county": "something"
-      #- "cohabit_address": "something"
-      #- "cohabit_state": "something"
-      #- "cohabit_month": "something"
-      #- "cohabit_day": "something"
-      #- "cohabit_year": "something"
+      - "marriage_county": ${ marriage_county }
+      - "marriage_state": ${ marriage_state }
+      - "marriage_day": ${ marriage_date.strftime("%d") }
+      - "marriage_month": ${ marriage_date.strftime("%m") }
+      - "marriage_year": ${ marriage_date.strftime("%Y") }
+      - "cohabit_county": ${ cohabit.county }
+      - "cohabit_address": ${ cohabit.address }
+      - "cohabit_state": ${ cohabit.state }
+      - "cohabit_month": ${ cohabit_date.strftime("%m") }
+      - "cohabit_day": ${ cohabit_date.strftime("%d") }
+      - "cohabit_year": ${ cohabit_date.strftime("%Y") }
       - "under_18": ${ "yes" if p_age > 18 and r_age > 18 else "no" }
-      #- "military": "no"
-      #- "incompetent": "no"
-      #- "incarcerated": "no"
+      - "military": ${ military }
+      - "incompetent": ${ incompetent }
+      - "incarcerated": ${ incarcerated }
       - "children_of_marriage": ${ "yes" if children.there_are_any == True else "no" }
-      - "minor_1_name": ${ children[0].name.full() if defined("children[0]") else ""}
-      - "minor_1_dob": ${ children[0].date_of_birth if (defined("children[0]") and defined("children[0].date_of_birth")) else ""}
-      - "minor_2_name": ${ children[1].name.full() if defined("children[1]") else ""}
-      - "minor_2_dob": ${ children[1].date_of_birth if (defined("children[1]") and defined("children[1].date_of_birth")) else ""}
-      - "minor_3_name": ${ children[2].name.full() if defined("children[2]") else ""}
-      - "minor_3_dob": ${ children[2].date_of_birth if (defined("children[2]") and defined("children[2].date_of_birth")) else ""}
-      - "minor_4_name": ${ children[3].name.full() if defined("children[3]") else ""}
-      - "minor_4_dob": ${ children[3].date_of_birth if (defined("children[3]") and defined("children[3].date_of_birth")) else ""}      
+      #- "minor_1_name": ${ children[0].name.full() if defined("children[0]") else ""}
+      #- "minor_1_dob": ${ children[0].date_of_birth if (defined("children[0]") and defined("children[0].date_of_birth")) else ""}
+      #- "minor_2_name": ${ children[1].name.full() if defined("children[1]") else ""}
+      #- "minor_2_dob": ${ children[1].date_of_birth if (defined("children[1]") and defined("children[1].date_of_birth")) else ""}
+      #- "minor_3_name": ${ children[2].name.full() if defined("children[2]") else ""}
+      #- "minor_3_dob": ${ children[2].date_of_birth if (defined("children[2]") and defined("children[2].date_of_birth")) else ""}
+      #- "minor_4_name": ${ children[3].name.full() if defined("children[3]") else ""}
+      #- "minor_4_dob": ${ children[3].date_of_birth if (defined("children[3]") and defined("children[3].date_of_birth")) else ""}      
       - "minor_5_name": ${ children[4].name.full() if defined("children[4]") else ""}
       - "minor_5_dob": ${ children[4].date_of_birth if (defined("children[4]") and defined("children[4].date_of_birth")) else ""}
       - "minor_6_name": ${ children[5].name.full() if defined("children[5]") else ""}
@@ -2590,72 +2899,6 @@ attachment:
       - "prohibit_abuse": "yes"
       #- "other_relief": No
       #- "other_relief_detail": "something"
----
-# Domestic Civil Case Information Statement -103
-attachment:
-  - name: sca_fc_103
-    filename: sca_fc_103
-    pdf template file: sca_fc_103.pdf
-    variable name: sca_fc_103
-    fields:
-      - "upper_county": ${ client.address.county.upper() }
-      #- "case_num": ${ case_number }
-      - "p_name": ${ client.name.full(middle="full") }
-      - "r_name": ${ legalserver_adverse_parties[0].name.full(middle="full") }
-      #- "confidential": No
-      - "p_address_line_one": ${ client.address.line_one() }
-      - "p_address_line_two": ${ client.address.line_two() }
-      - "p_phone": ${ client.phone_number }
-      - "p_gender": ${ client.gender.lower() }
-      - "p_dob": ${ client.birthdate }
-      - "p_ssn": ${ client.ssn }
-      - "p_race": ${ p_race }
-      - "minor_1_name": ${ children[0].name.full() if defined("children[0]") else ""}
-      - "minor_1_dob": ${ children[0].date_of_birth if (defined("children[0]") and defined("children[0].date_of_birth")) else ""}
-      - "minor_1_ssn": ${ children[0].ssn if (defined("children[0]") and defined("children[0].ssn")) else ""}
-      - "minor_2_name": ${ children[1].name.full() if defined("children[1]") else ""}
-      - "minor_2_dob": ${ children[1].date_of_birth if (defined("children[1]") and defined("children[1].date_of_birth")) else ""}
-      - "minor_2_ssn": ${ children[1].ssn if (defined("children[1]") and defined("children[1].ssn")) else ""}
-      - "minor_3_name": ${ children[2].name.full() if defined("children[2]") else ""}
-      - "minor_3_dob": ${ children[2].date_of_birth if (defined("children[2]") and defined("children[2].date_of_birth")) else ""}
-      - "minor_3_ssn": ${ children[2].ssn if (defined("children[2]") and defined("children[2].ssn")) else ""}
-      - "minor_4_name": ${ children[3].name.full() if defined("children[3]") else ""}
-      - "minor_4_dob": ${ children[3].date_of_birth if (defined("children[3]") and defined("children[3].date_of_birth")) else ""}
-      - "minor_4_ssn": ${ children[3].ssn if (defined("children[3]") and defined("children[3].ssn")) else ""}
-      - "accommodations": ${ accommodations }
-      - "wheelchair": ${ "Yes" if client.is_disabled else "No" }
-      - "interpreter": ${ "Yes" if client.interpreter else "No" }
-      - "r_address_line_one": ${ legalserver_adverse_parties[0].address.line_one() }                            
-      - "r_address_line_two": ${ legalserver_adverse_parties[0].address.line_two() }
-      - "r_phone": ${ legalserver_adverse_parties[0].phone_home }
-      - "r_gender": ${ legalserver_adverse_parties[0].gender.lower() }
-      - "r_ssn": ${ legalserver_adverse_parties[0].ssn }
-      - "r_dob": ${ legalserver_adverse_parties[0].date_of_birth }
-      - "r_race": ${ r_race }
-      - "divorce_without_children": ${ divorce_without_children }
-      - "divorce_with_children": ${ divorce_with_children }
-      - "grandparent_visitation": ${ grandparent_visitation }
-      - "annulment": ${ annulment }
-      - "separate_maintenance": ${ separate_maintenance }
-      - "child_support_only": ${ child_support_only }
-      - "child_custody_without_divorce": ${ child_custody_without_divorce }
-      - "paternity": ${ paternity }
-      - "modification": ${ modification }
-      - "contempt": ${ contempt }
-      - "infant_guardianship": ${ infant_guardianship }
-      #- "other_relief": No
-      #- "other_relief_detail": something
-      #- "alimony": No
-      #- "dvpo": No
-      #- "cps": No
-      #- "attorney": No
-      #- "attorney_name": something
-      #- "attorney_firm": something
-      #- "attorney_address": something
-      #- "attorney_phone": something
-      #- "Signature": |
-      #    ${ client.signature }
-      #- "date": something
 ---
 # Vital Statistics - 104
 attachment:
@@ -4182,9 +4425,9 @@ code: |
   # --------------------------------------------
   ## Setting UUID and site for testing purposes
   # --------------------------------------------
-  legalserver_matter_uuid = "99807b68-5d67-5948-9a58-0dd478114f2e"
-  legalserver_site_abbreviation = "LAWV"
-  legalserver_site_type = "Demo"
+  #legalserver_matter_uuid = "99807b68-5d67-5948-9a58-0dd478114f2e"
+  #legalserver_site_abbreviation = "LAWV"
+  #legalserver_site_type = "Demo"
   # --------------------------------------------
   ## End setting
   # --------------------------------------------
@@ -4356,6 +4599,7 @@ code: |
     representation
     if expected_county:
       filing_county = client.address.county
+    upper_county = filing_county.upper()
     confidential
     accommodations
 
@@ -4409,6 +4653,8 @@ code: |
         if seeking_child_support and not tanf:
           bcse_agreement
         if custody_schedule == "sole":
+          # Setting variables for sole custody
+          # Still need to ask the why questions
           p_daily = 100
           p_development = 100
           p_behavior = 100
@@ -4438,6 +4684,20 @@ code: |
           school_p = 100
           school_r = 0
           school_decision = "P"
+          restrictions = "restrictions"
+          visitation = "no_visitation"
+          restrictions_reasons
+          detailed_parenting_plan = "Petitioner requests sole custody of the children."
+          force_ask('detailed_parenting_plan')          
+          p_duration = ""
+          r_duration = ""
+          legal_custodian = "petitioner"
+          transfer_location = ""
+          transportation_arrangements = ""
+          child_call = ""
+          parent_call = ""
+          not_scheduling_during_time = ""
+          additional_terms = False
 
         elif custody_schedule == "shared_weekly":
           p_daily = 50
@@ -4449,6 +4709,11 @@ code: |
           p_moral = 50
           p_child_care = 50
           all_decisions = True
+          restrictions
+          detailed_parenting_plan = "Petitioner requests 50/50 shared custody of the children."
+          force_ask('detailed_parenting_plan')
+          p_duration
+          child_call
 
         elif custody_schedule == "alternate_weekends":
           p_daily = 75
@@ -4475,12 +4740,21 @@ code: |
           school_shared = 10
           school_p = 80
           school_r = 10
+          restrictions = "restrictions"
+          restrictions_reasons
+          detailed_parenting_plan = "Petitioner requests primary custody with Respondent receiving every other weekend."
+          force_ask('detailed_parenting_plan')
+          p_duration
+          child_call
 
         else:
           p_daily
           all_decisions
           no_school
           restrictions
+          detailed_parenting_plan
+          p_duration
+          child_call
   
   # --------------------------------------------
   ## Packets: https://lawv.sharepoint.com/sites/StrategicSupportStaffTaskForce/SitePages/Divorce,-Custody,-Support-Packet-Links.aspx
