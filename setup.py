@@ -44,7 +44,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.LAWVFamilyLaw',
-      version='0.1.2',
+      version='0.1.3',
       description=('A docassemble extension.'),
       long_description='LAWVFamilyLaw package for pulling information from LegalServer into Docassemble for the purposes of pre-populating WV Supreme Court of Appeals forms with information collected during LAWV intake process.',
       long_description_content_type='text/markdown',

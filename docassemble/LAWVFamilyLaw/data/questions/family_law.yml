@@ -69,6 +69,14 @@ under: |
 ---
 section: intro
 question: |
+  Who is the adverse party?
+fields: 
+  - no label: answer_me
+    datatype: object
+    choices: legalserver_adverse_parties
+---
+section: intro
+question: |
   Which path?
 subquestion: |
   Do you want to print the bundle with whatever information 
@@ -660,47 +668,47 @@ section: respondent
 question: |
   Review Respondent Information
 review:
-  - Edit: legalserver_adverse_parties[0].name.first
+  - Edit: adv_party.name.first
     button: |
-      **Name**: ${ legalserver_adverse_parties[0].name.full() }  
-      %if defined("legalserver_adverse_parties[0].birthdate"):
-      **DoB**: ${ legalserver_adverse_parties[0].birthdate }  
+      **Name**: ${ adv_party.name.full() }  
+      %if defined("adv_party.birthdate"):
+      **DoB**: ${ adv_party.birthdate }  
       %else:
       **DoB**: Undefined  
       %endif
-      %if defined("legalserver_adverse_parties[0].phone_number"):
-      **Phone**: ${ legalserver_adverse_parties[0].phone_number }  
+      %if defined("adv_party.phone_number"):
+      **Phone**: ${ adv_party.phone_number }  
       %else:
       **Phone**: Undefined  
       %endif  
-      **Address**: ${ legalserver_adverse_parties[0].address.on_one_line() }  
-      **County**: ${ legalserver_adverse_parties[0].address.county }
+      **Address**: ${ adv_party.address.on_one_line() }  
+      **County**: ${ adv_party.address.county }
 continue button field: respondent_reviewed
 ---
 section: respondent
 question: |
   Respondent Information
 fields:
-  - First Name: legalserver_adverse_parties[0].name.first
-  - Middle Name: legalserver_adverse_parties[0].name.middle
+  - First Name: adv_party.name.first
+  - Middle Name: adv_party.name.middle
     required: False
-  - Last Name: legalserver_adverse_parties[0].name.last
-  - Birthdate: legalserver_adverse_parties[0].birthdate
+  - Last Name: adv_party.name.last
+  - Birthdate: adv_party.birthdate
     datatype: date
     max: ${ today().minus(years=18) }
     required: False
-  - Phone Number: legalserver_adverse_parties[0].phone_number
+  - Phone Number: adv_party.phone_number
     required: False
-  - Address: legalserver_adverse_parties[0].address.address
+  - Address: adv_party.address.address
     address autocomplete: True
-  - Unit/Apt.: legalserver_adverse_parties[0].address.unit
+  - Unit/Apt.: adv_party.address.unit
     required: False
-  - City: legalserver_adverse_parties[0].address.city
-  - State: legalserver_adverse_parties[0].address.state
+  - City: adv_party.address.city
+  - State: adv_party.address.state
     code: states_list()
     default: WV
-  - Zip: legalserver_adverse_parties[0].address.zip
-  - County: legalserver_adverse_parties[0].address.county
+  - Zip: adv_party.address.zip
+  - County: adv_party.address.county
 ---
 section: respondent
 question: |
@@ -2679,7 +2687,7 @@ attachment:
       #- "case_num": something
       #- "judge_name": something
       - "p_name": ${ client.name.full(middle="full") }
-      - "r_name": ${ legalserver_adverse_parties[0].name.full(middle="full") }
+      - "r_name": ${ adv_party.name.full(middle="full") }
       - "confidential": ${ confidential }
       - "p_address_line_one": ${ client.address.line_one() }
       - "p_address_line_two": ${ client.address.line_two() }
@@ -2703,12 +2711,12 @@ attachment:
       - "accommodations": ${ accommodations }
       - "wheelchair": ${ "Yes" if client.is_disabled else "No" }
       - "interpreter": ${ "Yes" if client.interpreter else "No" }
-      - "r_address_line_one": ${ legalserver_adverse_parties[0].address.line_one() }                            
-      - "r_address_line_two": ${ legalserver_adverse_parties[0].address.line_two() }
-      - "r_phone": ${ legalserver_adverse_parties[0].phone_home }
-      - "r_gender": ${ legalserver_adverse_parties[0].gender.lower() }
-      - "r_ssn": ${ legalserver_adverse_parties[0].ssn }
-      - "r_dob": ${ legalserver_adverse_parties[0].date_of_birth }
+      - "r_address_line_one": ${ adv_party.address.line_one() }                            
+      - "r_address_line_two": ${ adv_party.address.line_two() }
+      - "r_phone": ${ adv_party.phone_home }
+      - "r_gender": ${ adv_party.gender.lower() }
+      - "r_ssn": ${ adv_party.ssn }
+      - "r_dob": ${ adv_party.date_of_birth }
       - "r_race": ${ r_race }
       - "divorce_without_children": ${ divorce_without_children }
       - "divorce_with_children": ${ divorce_with_children }
@@ -2744,7 +2752,7 @@ attachment:
       #- "upper_county": ${ client.address.county.upper() }
       #- "case_num": ${ case_number }
       #- "p_name": ${ client.name.full(middle="full") }
-      #- "r_name": ${ legalserver_adverse_parties[0].name.full(middle="full") }
+      #- "r_name": ${ adv_party.name.full(middle="full") }
       - "dv_proceeding": ${ dvpo }
       - "p_resident": ${ p_resident }
       - "r_resident": ${ r_resident }
@@ -2756,10 +2764,10 @@ attachment:
       - "other_jurisdiction": ${ other_jurisdiction }
       - "other_jurisdiction_detail": ${ other_jurisdiction_detail if other_jurisdiction else ""}
       - "p_county": ${ client.address.county }
-      - "r_county": ${ legalserver_adverse_parties[0].address.county }
+      - "r_county": ${ adv_party.address.county }
       - "respondent_resides": |
-          ${ "address_unknown" if not defined("legalserver_adverse_parties[0].address") else "in_wv" if legalserver_adverse_parties[0].address.state == "WV" else "out_of_state" }
-      - "r_address": ${ legalserver_adverse_parties[0].address.on_one_line() if not legalserver_adverse_parties[0].address.state == "WV" else "" }
+          ${ "address_unknown" if not defined("adv_party.address") else "in_wv" if adv_party.address.state == "WV" else "out_of_state" }
+      - "r_address": ${ adv_party.address.on_one_line() if not adv_party.address.state == "WV" else "" }
       - "marriage_county": ${ marriage_county }
       - "marriage_state": ${ marriage_state }
       - "marriage_day": ${ marriage_date.strftime("%d") }
@@ -2910,10 +2918,10 @@ attachment:
       - "upper_county": ${ client.address.county.upper() }
       #- "case_num": something
       - "p_name": ${ client.name.full(middle="full") }
-      - "r_name": ${ legalserver_adverse_parties[0].name.full(middle="full") }
+      - "r_name": ${ adv_party.name.full(middle="full") }
       #- "prior_name": something
       - "p_dob": ${ client.birthdate }
-      - "r_dob": ${ legalserver_adverse_parties[0].date_of_birth }
+      - "r_dob": ${ adv_party.date_of_birth }
       #- "marriage_county": something
       #- "marriage_state": something
       #- "marriage_date": something
@@ -2944,7 +2952,7 @@ attachment:
       - "upper_county": ${ client.address.county.upper() }
       #- "case_num": something
       - "p_name": ${ client.name.full(middle="full") }
-      - "r_name": ${ legalserver_adverse_parties[0].name.full(middle="full") }
+      - "r_name": ${ adv_party.name.full(middle="full") }
       #- "protect_information": something
       - "name": ${ client.name.full(middle="full") }
       - "dob": ${ client.birthdate }
@@ -3400,7 +3408,7 @@ attachment:
     fields:
       - "upper_county": ${ client.address.county.upper() }
       #- "case_num": something
-      - "r_name": ${ legalserver_adverse_parties[0].name.full(middle="full") }
+      - "r_name": ${ adv_party.name.full(middle="full") }
       - "p_name": ${ client.name.full(middle="full") }
       - "name": ${ client.name.full(middle="full") }
       - "prior_relief": "no"
@@ -3421,8 +3429,8 @@ attachment:
       #- "other": No
       #- "other_detail": something
       - "county": ${ client.address.county }
-      - "op_name": ${ legalserver_adverse_parties[0].name.full(middle="full") }
-      - "op_address": ${ legalserver_adverse_parties[0].address.on_one_line() }
+      - "op_name": ${ adv_party.name.full(middle="full") }
+      - "op_address": ${ adv_party.address.on_one_line() }
 ---
 # Parenting Plan - 121
 attachment:
@@ -3433,7 +3441,7 @@ attachment:
     fields:
       - "upper_county": ${ client.address.county.upper() }
       #- "case_num": something
-      - "r_name": ${ legalserver_adverse_parties[0].name.full(middle="full") }
+      - "r_name": ${ adv_party.name.full(middle="full") }
       - "p_name": ${ client.name.full(middle="full") }
       - "completed_by": "individually"
       - "role": "petitioner"
@@ -4255,7 +4263,7 @@ attachment:
     fields:
       - "upper_court": ${ client.address.county.upper() }
       #- "case_num": something
-      - "r_name": ${ legalserver_adverse_parties[0].name.full(middle="full") }
+      - "r_name": ${ adv_party.name.full(middle="full") }
       - "p_name": ${ client.name.full(middle="full") }
       - "individual": ${ client.name.full(middle="full") }
       - "date_af_date": ${ today() }
@@ -4319,9 +4327,9 @@ attachment:
     fields:
       - "upper_county": ${ client.address.county.upper() }
       #- "case_num": something
-      - "r_name": ${ legalserver_adverse_parties[0].name.full(middle="full") }
+      - "r_name": ${ adv_party.name.full(middle="full") }
       - "p_name": ${ client.name.full(middle="full") }
-      - "opposing_party": ${ legalserver_adverse_parties[0].name.full(middle="full") }
+      - "opposing_party": ${ adv_party.name.full(middle="full") }
       - "individual": ${ client.name.full(middle="full") }
       - "county": ${ client.address.county }
       #- "hearing_period": No
@@ -4356,14 +4364,14 @@ attachment:
       #- "p_mailing_address": something
       - "p_phone": ${ client.phone_number }
       #- "p_license": something
-      - "r_name": ${ legalserver_adverse_parties[0].name.full(middle="full") }
-      - "r_dob": ${ legalserver_adverse_parties[0].date_of_birth }
-      - "r_ssn": ${ legalserver_adverse_parties[0].ssn }
-      - "r_gender": ${ legalserver_adverse_parties[0].gender.lower() }
+      - "r_name": ${ adv_party.name.full(middle="full") }
+      - "r_dob": ${ adv_party.date_of_birth }
+      - "r_ssn": ${ adv_party.ssn }
+      - "r_gender": ${ adv_party.gender.lower() }
       #- "r_relationship": something
-      - "r_address": ${ legalserver_adverse_parties[0].address.on_one_line() }
+      - "r_address": ${ adv_party.address.on_one_line() }
       #- "r_mailing_address": something
-      - "r_phone": ${ legalserver_adverse_parties[0].phone_home }
+      - "r_phone": ${ adv_party.phone_home }
       #- "r_license": something
       - "minor_1_name": ${ children[0].name.full() if defined("children[0]") else ""}
       - "minor_1_dob": ${ children[0].date_of_birth if (defined("children[0]") and defined("children[0].date_of_birth")) else ""}
@@ -4497,25 +4505,32 @@ code: |
     p_age = client.age_in_years()
   
   ## Respondent
-  for respondent in legalserver_adverse_parties:
-    respondent.address.geocode()
+  # Because of how data is entered into LS, there is a good chance 
+  # that "Adverse party" is actually just client's maiden name.
+  # So we need to see who the actual adverse party is.
+  if len(legalserver_adverse_parties) >= 2:
+    adv_party
+  else:
+    adv_party = legalserver_adverse_parties[0]
+
+  adv_party.address.geocode()
   # Race
-  if legalserver_adverse_parties[0].race == "White - Not Hispanic" or legalserver_adverse_parties[0].race == "White (Not Hispanic)":
+  if adv_party.race == "White - Not Hispanic" or adv_party.race == "White (Not Hispanic)":
     r_race = "white"
-  elif legalserver_adverse_parties[0].race == "Black (Not Hispanic)":
+  elif adv_party.race == "Black (Not Hispanic)":
     r_race = "black"
-  elif legalserver_adverse_parties[0].race == "Native American":
+  elif adv_party.race == "Native American":
     r_race = "american_indian"
-  elif legalserver_adverse_parties[0].race == "Hispanic":
+  elif adv_party.race == "Hispanic":
     r_race = "hispanic"
-  elif legalserver_adverse_parties[0].race == "Asian or Pacific Islander":
+  elif adv_party.race == "Asian or Pacific Islander":
     r_race = "asian"
   else:
     r_race = "unknown"
   # Age
-  if defined("legalserver_adverse_parties[0].date_of_birth"):
-    legalserver_adverse_parties[0].birthdate = legalserver_adverse_parties[0].date_of_birth
-    r_age = legalserver_adverse_parties[0].age_in_years()
+  if defined("adv_party.date_of_birth"):
+    adv_party.birthdate = adv_party.date_of_birth
+    r_age = adv_party.age_in_years()
 
   ## Children
   children.clear()
