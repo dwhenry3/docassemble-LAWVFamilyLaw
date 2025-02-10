@@ -23,7 +23,7 @@ features:
   navigation: True
 ---
 objects:
-  - children: DAList.using(object=IndividualName, there_are_any=True, auto_gather=False)
+  - children: DAList.using(object_type=Individual, there_are_any=True)
   - children_addresses: DAList.using(object_type=Address)
   - child_support_children: DAList.using(object_type=Individual)
   - p_employment: DAList.using(object_type=DAObject, complete_attribute='complete')
@@ -51,6 +51,14 @@ sections:
 ---
 section: intro
 question: |
+  Who is the adverse party?
+fields: 
+  - no label: adv_party
+    datatype: object
+    choices: legalserver_adverse_parties
+---
+section: intro
+question: |
   Select the packet
 field: packet
 default: ${ problem_code }
@@ -69,14 +77,6 @@ under: |
 ---
 section: intro
 question: |
-  Who is the adverse party?
-fields: 
-  - no label: answer_me
-    datatype: object
-    choices: legalserver_adverse_parties
----
-section: intro
-question: |
   Which path?
 subquestion: |
   Do you want to print the bundle with whatever information 
@@ -91,7 +91,7 @@ section: case
 question: |
   Answer the following:
 fields:
-  - Are you filing in **Berkeley County**?: expected_county
+  - Are you filing in **${ client.address.county } County**?: expected_county
     datatype: yesnoradio
   - In what county are you filing: filing_county
     input type: dropdown
@@ -199,14 +199,6 @@ review:
       **Phone**: ${ client.phone_number }  
       **Address**: ${ client.address.on_one_line() }  
       **County**: ${ client.address.county } County
-
-      %if packet == "divorce_with" or packet == "divorce_without":
-      %if defined("client.maiden_name"):
-      **Maiden Name**: ${ client.maiden_name }
-      %else:
-      **Maiden Name**: Unknown
-      %endif
-      %endif
 continue button field: petitioner_reviewed
 ---
 section: petitioner
@@ -233,10 +225,6 @@ fields:
     default: WV
   - Zip: client.address.zip
   - County: client.address.county
-  - Maiden Name: client.maiden_name
-    show if:
-      code: |
-        packet == "divorce_with" or packet == "divorce_without"
 ---
 section: petitioner
 question: |
@@ -680,9 +668,14 @@ review:
       **Phone**: ${ adv_party.phone_number }  
       %else:
       **Phone**: Undefined  
-      %endif  
+      %endif
+      %if defined("adv_party.address.address"):  
       **Address**: ${ adv_party.address.on_one_line() }  
       **County**: ${ adv_party.address.county }
+      %else:
+      **Address**: Undefined  
+      **County**:Undefined
+      %endif
 continue button field: respondent_reviewed
 ---
 section: respondent
@@ -696,7 +689,6 @@ fields:
   - Birthdate: adv_party.birthdate
     datatype: date
     max: ${ today().minus(years=18) }
-    required: False
   - Phone Number: adv_party.phone_number
     required: False
   - Address: adv_party.address.address
@@ -720,7 +712,7 @@ fields:
     datatype: yesnoradio
     grid: 
       width: 3
-      label width: 5
+      label width: 4
   - Year?: r_high_school_detail
     show if: r_high_school
     label above field: True
@@ -731,7 +723,7 @@ fields:
     datatype: yesnoradio
     grid: 
       width: 3
-      label width: 3
+      label width: 4
   - Year?: r_ged_detail  
     show if: r_ged
     label above field: True
@@ -835,7 +827,7 @@ edit:
 ---
 section: children
 question: |
-  Please enter the information
+  Please enter the information for the ${ ordinal(i) } child.
 fields:
   - First Name: children[i].name.first
   - Middle Name: children[i].name.middle
@@ -846,6 +838,18 @@ fields:
     min: ${ today().minus(years=18) }
   - SSN: children[i].ssn
     required: False
+---
+section: children
+question: |
+  So far, you have listed:  
+
+  %for child in children:
+  * ${ child.name.full() }  
+  %endfor
+
+subquestion: |
+  Would you like to add another?
+yesno: children.there_is_another
 ---
 section: children
 question: |
@@ -919,6 +923,10 @@ fields:
   - Marriage County: marriage_county
     label above field: True
     grid: 4
+  - Does Petitioner wish to resume using a prior name?: resume_name
+    datatype: yesnoradio
+  - Which is: prior_name
+    show if: resume_name
   - note: |
       ***
   - Last cohabitation address: cohabit.address
@@ -945,7 +953,7 @@ fields:
   - Parties were married in WV and at least one of them resides in WV at this time: wv_married
     datatype: yesnowide
   - note: |
-      **Filing in ${ filing_county } County because:
+      **Filing in ${ filing_county } County because**:
   - This is the last cohabitation county: cohabitation
     datatype: yesnowide
   - This is where Respondent now resides: r_resides
@@ -970,6 +978,7 @@ fields:
     datatype: yesnoradio
   - Is either party currently incarcerated?: incarcerated
     datatype: yesnoradio
+
 ---
 section: pleadings
 question: |
@@ -2334,20 +2343,15 @@ fields:
     show if:
       variable: visitation
       is: supervised_visitation
-  - no label: supervised_transfer
-    datatype: checkboxes
-    choices:
-      - Transfers should be supervised: yes
-    none of the above: False
+  - Transfers should be supervised: supervised_transfer
+    datatype: yesnowide
     show if:
       variable: restrictions
       is: restrictions
   - Transfer Supervisor: transfer_supervisor
-    js show if:
-      val("supervised_transfer['yes']")
+    show if: supervised_transfer
   - Transfer Location: transfer_location
-    js show if:
-      val("supervised_transfer['yes']")
+    show if: supervised_transfer
   - Other Proposed Restrictions: other_restrictions
     input type: area
     label above field: True
@@ -2366,16 +2370,17 @@ subquestion: |
   If there is already some text, it is because you selected Sole Custody, Shared Custody,
   or Petitioner Primary on a previous question.  Please add additional details as necessary.
 
-  SCA-FC-121 - Page 8
+  *SCA-FC-121 - Page 8*
 fields:
   - no label: detailed_parenting_plan
     input type: area
+continue button field: detailed_parenting_plan_complete
 ---
 section: custody
 question: | 
   Vacation Times, Legal Custodian, and Transportation
 subquestion: |
-  SCA-FC-121 - Page 9-10
+  *SCA-FC-121 - Page 9-10*
 fields:
   - note: |
       **Vacation/Summer**
@@ -2587,25 +2592,6 @@ fields:
     input type: area
     show if: additional_terms
 ---
-generic object: DACatchAll
-question: |
-  What is ${ x.object_name() }?
-fields:
-  - no label: x.value
-validation code: |
-  define(x.instanceName, x.value)
----
-if: |
-  x.context == 'float'
-generic object: DACatchAll
-question: |
-  How much is ${ x.object_name() }?
-fields:
-  - Amount: x.value
-    datatype: currency
-validation code: |
-  define(x.instanceName, x.value)
----
 ga id: divorceWithQuickEndpoint
 question: |
   Final Information
@@ -2713,7 +2699,7 @@ attachment:
       - "interpreter": ${ "Yes" if client.interpreter else "No" }
       - "r_address_line_one": ${ adv_party.address.line_one() }                            
       - "r_address_line_two": ${ adv_party.address.line_two() }
-      - "r_phone": ${ adv_party.phone_home }
+      - "r_phone": ${ adv_party.phone_number }
       - "r_gender": ${ adv_party.gender.lower() }
       - "r_ssn": ${ adv_party.ssn }
       - "r_dob": ${ adv_party.date_of_birth }
@@ -4371,7 +4357,7 @@ attachment:
       #- "r_relationship": something
       - "r_address": ${ adv_party.address.on_one_line() }
       #- "r_mailing_address": something
-      - "r_phone": ${ adv_party.phone_home }
+      - "r_phone": ${ adv_party.phone_number }
       #- "r_license": something
       - "minor_1_name": ${ children[0].name.full() if defined("children[0]") else ""}
       - "minor_1_dob": ${ children[0].date_of_birth if (defined("children[0]") and defined("children[0].date_of_birth")) else ""}
@@ -4513,36 +4499,6 @@ code: |
   else:
     adv_party = legalserver_adverse_parties[0]
 
-  adv_party.address.geocode()
-  # Race
-  if adv_party.race == "White - Not Hispanic" or adv_party.race == "White (Not Hispanic)":
-    r_race = "white"
-  elif adv_party.race == "Black (Not Hispanic)":
-    r_race = "black"
-  elif adv_party.race == "Native American":
-    r_race = "american_indian"
-  elif adv_party.race == "Hispanic":
-    r_race = "hispanic"
-  elif adv_party.race == "Asian or Pacific Islander":
-    r_race = "asian"
-  else:
-    r_race = "unknown"
-  # Age
-  if defined("adv_party.date_of_birth"):
-    adv_party.birthdate = adv_party.date_of_birth
-    r_age = adv_party.age_in_years()
-
-  ## Children
-  children.clear()
-  for item in legalserver_non_adverse_parties:
-    if item.relationship_type == "Child":
-      if defined("item.date_of_birth"):
-        item.birthdate = item.date_of_birth
-        item.age = item.age_in_years()
-      if not defined("item.ssn"):
-        item.ssn = ""
-      children.append(item, set_instance_name=True)
-
   ## Case Info
   # Problem Code
   divorce_without_children = False
@@ -4598,6 +4554,8 @@ code: |
         infant_guardianship = "Yes"
       case "311 Custody":
         child_custody_without_divorce = "Yes"
+  if not defined("problem_code"):
+    problem_code = ""
 
   # --------------------------------------------
   ## Now we start asking the questions
@@ -4634,7 +4592,29 @@ code: |
       # -----------
       # Respondent Information
       # -----------
+      if defined("adv_party.date_of_birth"):
+        adv_party.birthdate = adv_party.date_of_birth
       respondent_reviewed
+      # Race
+      if defined("adv_party.race"):
+        if adv_party.race == "White - Not Hispanic" or adv_party.race == "White (Not Hispanic)":
+          r_race = "white"
+        elif adv_party.race == "Black (Not Hispanic)":
+          r_race = "black"
+        elif adv_party.race == "Native American":
+          r_race = "american_indian"
+        elif adv_party.race == "Hispanic":
+          r_race = "hispanic"
+        elif adv_party.race == "Asian or Pacific Islander":
+          r_race = "asian"
+        else:
+          r_race = "unknown"
+      else:
+        r_race = "unknown"
+      # Age
+      r_age = adv_party.age_in_years()
+      adv_party.address.geocode()
+
       r_high_school
       r_employment.gather()
 
@@ -4642,6 +4622,24 @@ code: |
       # Children's Informaiton
       # -----------
       if packet == "divorce_with":
+        ## Children
+        added = False
+        if len(legalserver_non_adverse_parties) >= 1:
+          for item in legalserver_non_adverse_parties:
+            if item.relationship_type == "Child":
+              if defined("item.date_of_birth"):
+                item.birthdate = item.date_of_birth
+                item.age = item.age_in_years()
+              if not defined("item.ssn"):
+                item.ssn = ""
+              children.append(item, set_instance_name=True)
+              added = True
+          if added:
+            children.gathered = True
+          else:
+            children.gather()
+        else:
+          children.gather()
         children_reviewed
         children_addresses.gather()
         children_insurance
@@ -4703,7 +4701,8 @@ code: |
           visitation = "no_visitation"
           restrictions_reasons
           detailed_parenting_plan = "Petitioner requests sole custody of the children."
-          force_ask('detailed_parenting_plan')          
+          if detailed_parenting_plan and not detailed_parenting_plan_complete:
+            force_ask('detailed_parenting_plan')
           p_duration = ""
           r_duration = ""
           legal_custodian = "petitioner"
@@ -4726,7 +4725,8 @@ code: |
           all_decisions = True
           restrictions
           detailed_parenting_plan = "Petitioner requests 50/50 shared custody of the children."
-          force_ask('detailed_parenting_plan')
+          if detailed_parenting_plan and not detailed_parenting_plan_complete:
+            force_ask('detailed_parenting_plan')
           p_duration
           child_call
 
@@ -4758,7 +4758,8 @@ code: |
           restrictions = "restrictions"
           restrictions_reasons
           detailed_parenting_plan = "Petitioner requests primary custody with Respondent receiving every other weekend."
-          force_ask('detailed_parenting_plan')
+          if detailed_parenting_plan and not detailed_parenting_plan_complete:
+            force_ask('detailed_parenting_plan')
           p_duration
           child_call
 
