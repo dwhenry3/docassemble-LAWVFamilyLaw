@@ -4600,10 +4600,11 @@ code: |
   # --------------------------------------------
   ## Now we start asking the questions
   # --------------------------------------------
-  if packet == "divorce_without":
+  if packet == "divorce_without" and not defined("navigation_editted"):
     the_sections = nav.get_sections()
     del the_sections[2]["subsections"][2]
     nav.set_sections(the_sections)
+    navigation_editted = True
 
   if path == "guided":
     # -----------
