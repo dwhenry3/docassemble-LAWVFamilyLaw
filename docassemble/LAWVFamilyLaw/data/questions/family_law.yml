@@ -1101,7 +1101,7 @@ fields:
     label above field: True
     grid: 3
     show if: marital_home
-  - Goes To: marital_home_goes_to
+  - Should Go To: marital_home_goes_to
     choices:
       - P
       - R
@@ -1131,7 +1131,7 @@ fields:
     label above field: True
     grid: 3
     show if: other_real_estate
-  - Goes To: other_real_estate_goes_to
+  - Should Go To: other_real_estate_goes_to
     choices:
       - P
       - R
@@ -1161,7 +1161,7 @@ fields:
     label above field: True
     grid: 3
     show if: mobile_home
-  - Goes To: mobile_home_goes_to
+  - Should Go To: mobile_home_goes_to
     choices:
       - P
       - R
@@ -1193,7 +1193,7 @@ fields:
     label above field: True
     grid: 3
     show if: motor_vehicle
-  - Goes To: motor_vehicle_1_goes_to
+  - Should Go To: motor_vehicle_1_goes_to
     choices:
       - P
       - R
@@ -1223,7 +1223,7 @@ fields:
     label above field: True
     grid: 3
     show if: motor_vehicle
-  - Goes To: motor_vehicle_2_goes_to
+  - Should Go To: motor_vehicle_2_goes_to
     choices:
       - P
       - R
@@ -1253,7 +1253,7 @@ fields:
     label above field: True
     grid: 3
     show if: household_goods
-  - Goes To: household_goods_goes_to
+  - Should Go To: household_goods_goes_to
     choices:
       - P
       - R
@@ -1283,7 +1283,7 @@ fields:
     label above field: True
     grid: 3
     show if: checking_account
-  - Goes To: checking_account_goes_to
+  - Should Go To: checking_account_goes_to
     choices:
       - P
       - R
@@ -1313,7 +1313,7 @@ fields:
     label above field: True
     grid: 3
     show if: savings_account
-  - Goes To: savings_account_goes_to
+  - Should Go To: savings_account_goes_to
     choices:
       - P
       - R
@@ -1343,7 +1343,7 @@ fields:
     label above field: True
     grid: 3
     show if: money_market
-  - Goes To: money_market_goes_to
+  - Should Go To: money_market_goes_to
     choices:
       - P
       - R
@@ -1373,7 +1373,7 @@ fields:
     label above field: True
     grid: 3
     show if: stocks
-  - Goes To: stocks_goes_to
+  - Should Go To: stocks_goes_to
     choices:
       - P
       - R
@@ -1403,7 +1403,7 @@ fields:
     label above field: True
     grid: 3
     show if: credit_union
-  - Goes To: credit_union_goes_to
+  - Should Go To: credit_union_goes_to
     choices:
       - P
       - R
@@ -1433,7 +1433,7 @@ fields:
     label above field: True
     grid: 3
     show if: profit_sharing
-  - Goes To: profit_sharing_goes_to
+  - Should Go To: profit_sharing_goes_to
     choices:
       - P
       - R
@@ -1463,7 +1463,7 @@ fields:
     label above field: True
     grid: 3
     show if: trusts
-  - Goes To: trusts_goes_to
+  - Should Go To: trusts_goes_to
     choices:
       - P
       - R
@@ -1493,7 +1493,7 @@ fields:
     label above field: True
     grid: 3
     show if: mutual_funds
-  - Goes To: mutual_funds_goes_to
+  - Should Go To: mutual_funds_goes_to
     choices:
       - P
       - R
@@ -1523,7 +1523,7 @@ fields:
     label above field: True
     grid: 3
     show if: bonds
-  - Goes To: bonds_goes_to
+  - Should Go To: bonds_goes_to
     choices:
       - P
       - R
@@ -1553,7 +1553,7 @@ fields:
     label above field: True
     grid: 3
     show if: pension_plans
-  - Goes To: pension_plans_goes_to
+  - Should Go To: pension_plans_goes_to
     choices:
       - P
       - R
@@ -1583,7 +1583,7 @@ fields:
     label above field: True
     grid: 3
     show if: ira
-  - Goes To: ira_goes_to
+  - Should Go To: ira_goes_to
     choices:
       - P
       - R
@@ -1613,7 +1613,7 @@ fields:
     label above field: True
     grid: 3
     show if: whole_life
-  - Goes To: whole_life_goes_to
+  - Should Go To: whole_life_goes_to
     choices:
       - P
       - R
@@ -1643,7 +1643,7 @@ fields:
     label above field: True
     grid: 3
     show if: annuities
-  - Goes To: annuities_goes_to
+  - Should Go To: annuities_goes_to
     choices:
       - P
       - R
@@ -1673,7 +1673,7 @@ fields:
     label above field: True
     grid: 3
     show if: guns
-  - Goes To: guns_goes_to
+  - Should Go To: guns_goes_to
     choices:
       - P
       - R
@@ -1703,7 +1703,7 @@ fields:
     label above field: True
     grid: 3
     show if: tools
-  - Goes To: tools_goes_to
+  - Should Go To: tools_goes_to
     choices:
       - P
       - R
@@ -1733,7 +1733,7 @@ fields:
     label above field: True
     grid: 3
     show if: jewelry
-  - Goes To: jewelry_goes_to
+  - Should Go To: jewelry_goes_to
     choices:
       - P
       - R
@@ -1763,7 +1763,7 @@ fields:
     label above field: True
     grid: 3
     show if: personal_prop
-  - Goes To: personal_prop_goes_to
+  - Should Go To: personal_prop_goes_to
     choices:
       - P
       - R
@@ -1795,7 +1795,7 @@ fields:
     label above field: True
     grid: 3
     show if: other_property
-  - Goes To: other_property_goes_to
+  - Should Go To: other_property_goes_to
     choices:
       - P
       - R
@@ -2689,18 +2689,19 @@ attachment:
     filename: sca_fc_103
     pdf template file: sca_fc_103.pdf
     variable name: sca_fc_103
+    skip undefined: True
     fields:
       - "upper_county": ${ upper_county }
       #- "case_num": something
       #- "judge_name": something
       - "p_name": ${ client.name.full(middle="full") }
       - "r_name": ${ adv_party.name.full(middle="full") }
-      - "confidential": ${ confidential }
-      - "p_address_line_one": ${ client.address.line_one() }
-      - "p_address_line_two": ${ client.address.line_two() }
-      - "p_phone": ${ client.phone_number }
+      - "confidential": ${ confidential if defined("confidential") else "" }
+      - "p_address_line_one": ${ client.address.line_one() if defined("client.address") else "" }
+      - "p_address_line_two": ${ client.address.line_two() if defined("client.address") else "" }
+      - "p_phone": ${ client.phone_number if defined("client.phone_number") else "" }
       - "p_gender": ${ client.gender.lower() if defined("client.gender") else "" }
-      - "p_dob": ${ client.birthdate }
+      - "p_dob": ${ client.birthdate if defined("client.birthdate") else "" }
       - "p_ssn": ${ client.ssn if defined("client.ssn") else "" }
       - "p_race": ${ p_race }
       - "minor_1_name": ${ children[0].name.full() if defined("children[0]") else "" }
@@ -2715,15 +2716,15 @@ attachment:
       - "minor_4_name": ${ children[3].name.full() if defined("children[3]") else "" }
       - "minor_4_dob": ${ children[3].birthdate if (defined("children[3]") and defined("children[3].birthdate")) else "" }
       - "minor_4_ssn": ${ children[3].ssn if (defined("children[3]") and defined("children[3].ssn")) else "" }
-      - "accommodations": ${ "Yes" if accommodations else "No"}
+      - "accommodations": ${ "Yes" if defined("accommodations") and accommodations else "No"}
       - "wheelchair": ${ "Yes" if client.is_disabled else "No" }
       - "interpreter": ${ "Yes" if client.interpreter else "No" }
-      - "r_address_line_one": ${ adv_party.address.line_one() }                            
-      - "r_address_line_two": ${ adv_party.address.line_two() }
-      - "r_phone": ${ adv_party.phone_number }
+      - "r_address_line_one": ${ adv_party.address.line_one() if defined("adv_party.address") else "" }
+      - "r_address_line_two": ${ adv_party.address.line_two() if defined("adv_party.address") else "" }
+      - "r_phone": ${ adv_party.phone_number if defined("adv_party.phone_number") else "" }
       - "r_gender": ${ adv_party.gender.lower() if defined("adv_party.gender") else "" }
       - "r_ssn": ${ adv_party.ssn if defined("adv_party.ssn") else "" }
-      - "r_dob": ${ adv_party.birthdate }
+      - "r_dob": ${ adv_party.birthdate if defined("adv_party.birthdate") else "" }
       - "r_race": ${ r_race }
       - "divorce_without_children": ${ divorce_without_children }
       - "divorce_with_children": ${ divorce_with_children }
@@ -2741,11 +2742,11 @@ attachment:
       - "alimony": ${ seeking_spousal if defined("seeking_spousal") else False}
       - "dvpo": ${ dvpo }
       - "cps": ${ cps if defined("cps") else False }
-      - "attorney": ${ "yes" if representation == "full_rep" else "no" }
-      - "attorney_name": ${ attorney_name if representation == "full_rep" else "" }
-      - "attorney_firm": ${ firm if representation == "full_rep" else "" }
-      - "attorney_address": ${ firm_address if representation == "full_rep" else "" }
-      - "attorney_phone": ${ firm_phone if representation == "full_rep" else "" }
+      - "attorney": ${ "yes" if defined("representation") and representation == "full_rep" else "no" }
+      - "attorney_name": ${ attorney_name if defined("representation") and representation == "full_rep" else "" }
+      - "attorney_firm": ${ firm if defined("representation") and representation == "full_rep" else "" }
+      - "attorney_address": ${ firm_address if defined("representation") and representation == "full_rep" else "" }
+      - "attorney_phone": ${ firm_phone if defined("representation") and representation == "full_rep" else "" }
       #- "Signature": ${ user.signature }
       #- "date": something
 ---
@@ -2755,6 +2756,7 @@ attachment:
     filename: sca_fc_101
     pdf template file: sca_fc_101.pdf
     variable name: sca_fc_101
+    skip undefined: True
     fields:
       #- "upper_county": ${ client.address.county.upper() }
       #- "case_num": ${ case_number }
@@ -2920,6 +2922,7 @@ attachment:
     filename: sca_fc_104
     pdf template file: sca_fc_104.pdf
     variable name: sca_fc_104
+    skip undefined: True
     fields:
       #- "upper_county": ${ client.address.county.upper() }
       #- "case_num": something
@@ -2954,23 +2957,24 @@ attachment:
     filename: sca_fc_106
     pdf template file: sca_fc_106.pdf
     variable name: sca_fc_106
+    skip undefined: True
     fields:
       #- "upper_county": ${ client.address.county.upper() }
       #- "case_num": something
       #- "p_name": ${ client.name.full(middle="full") }
       #- "r_name": ${ adv_party.name.full(middle="full") }
-      - "protect_information": ${ confidential }
+      - "protect_information": ${ confidential if defined("confidential") else "" }
       - "name": ${ client.name.full(middle="full") }
       - "dob": ${ client.birthdate }
-      - "address": ${ client.address.on_one_line() if not confidential else "" }
+      - "address": ${ client.address.on_one_line() if defined("confidential") and not confidential else "" }
       - "age": ${ p_age }
-      - "phone_num": ${ client.phone_number if not confidential else "" }
-      - "disability": ${ accommodations }
+      - "phone_num": ${ client.phone_number if defined("confidential") and not confidential else "" }
+      - "disability": ${ accommodations if defined("accommodations") else "" }
       #- "education": something
-      - "employer": ${ client.employer_name if not confidential else "" }
+      - "employer": ${ client.employer_name if defined("confidential") and not confidential else "" }
       #- "employment_type": something
-      - "employer_address": ${ client.employer_address if not confidential else "" }
-      - "employer_phone": ${ client.employer_phone if not confidential else "" }
+      - "employer_address": ${ client.employer_address if defined("confidential") and not confidential else "" }
+      - "employer_phone": ${ client.employer_phone if defined("confidential") and not confidential else "" }
       #- "date_employed": something
       - "gross_pay": ${ legalserver_incomes[0].amount }
       - "pay_period": ${ legalserver_incomes[0].period }
@@ -3411,6 +3415,7 @@ attachment:
     filename: sca_fc_112
     pdf template file: sca_fc_112.pdf
     variable name: sca_fc_112
+    skip undefined: True
     fields:
       #- "upper_county": ${ client.address.county.upper() }
       #- "case_num": something
@@ -3441,6 +3446,7 @@ attachment:
     filename: sca_fc_121
     pdf template file: sca_fc_121.pdf
     variable name: sca_fc_121
+    skip undefined: True
     fields:
       #- "upper_county": ${ client.address.county.upper() }
       #- "case_num": something
@@ -4263,6 +4269,7 @@ attachment:
     filename: sca_fc_128
     pdf template file: sca_fc_128.pdf
     variable name: sca_fc_128
+    skip undefined: True
     fields:
       #- "upper_court": ${ client.address.county.upper() }
       #- "case_num": something
@@ -4327,6 +4334,7 @@ attachment:
     filename: sca_fc_129
     pdf template file: sca_fc_129.pdf
     variable name: sca_fc_129
+    skip undefined: True
     fields:
       #- "upper_county": ${ client.address.county.upper() }
       #- "case_num": something
@@ -4356,6 +4364,7 @@ attachment:
     filename: fdvcsap
     pdf template file: fdvcsap.pdf
     variable name: fdvscap
+    skip undefined: True
     fields:
       #- "existing_support_order": False
       #- "p_name": ${ client.name.full(middle="full") }
@@ -4409,6 +4418,7 @@ attachment:
     filename: sca_fc_140
     pdf template file: sca_fc_140.pdf
     variable name: sca_fc_140
+    skip undefined: True
     fields:
       #- "upper_county": something
       #- "p_name": something
@@ -4828,7 +4838,8 @@ code: |
         r_health = 100 - p_health
         r_moral = 100 - p_moral
         r_child_care = 100 - p_child_care
-  
+  else: #Print-As-Is
+    upper_county = client.address.county.upper()
   # --------------------------------------------
   ## Packets: https://lawv.sharepoint.com/sites/StrategicSupportStaffTaskForce/SitePages/Divorce,-Custody,-Support-Packet-Links.aspx
   # --------------------------------------------
