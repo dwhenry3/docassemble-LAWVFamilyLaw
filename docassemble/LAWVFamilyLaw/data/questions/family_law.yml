@@ -2633,6 +2633,7 @@ code: |
   add_file_to_LS = post_file_to_legalserver_documents_webhook(legalserver_site=legalserver_site, file_path=zip_file(divorce_with_bundle, filename='files.zip').path(), legalserver_matter_uuid=legalserver_matter_uuid, save_to_sharepoint=True)
   end_with_time = datetime.datetime.now()
   total_with_time = end_with_time - begin_time
+  send_email(to="dhenry@lawv.net",template=email_case_info_with)
   divorce_with_submitted_to_LS = True
 ---
 event: send_divorce_with_files
@@ -2667,6 +2668,7 @@ code: |
   add_file_to_LS = post_file_to_legalserver_documents_webhook(legalserver_site=legalserver_site, file_path=zip_file(divorce_without_bundle, filename='files.zip').path(), legalserver_matter_uuid=legalserver_matter_uuid, save_to_sharepoint=True)
   end_without_time = datetime.datetime.now()
   total_without_time = end_without_time - begin_time
+  send_email(to="dhenry@lawv.net",template=email_case_info_without)
   divorce_without_submitted_to_LS = True
 ---
 event: send_divorce_without_files
@@ -2682,6 +2684,26 @@ content: |
   Additional information can always be found at [Legal Aid of West Virginia](https://legalaidwv.org/).
 
   *NOTE: This email address is not monitored.  Please do not reply to this message.*
+---
+template: email_case_info_without
+subject: |
+  LAWV Family Law Packet
+content: |
+  User: ${ user_info().email }  
+  Client: ${ client.name.full(middle="full") }  
+  Packet: ${ packet }  
+  Path: ${ path }  
+  Time: ${ total_without_time }  
+---
+template: email_case_info_with
+subject: |
+  LAWV Family Law Packet
+content: |
+  User: ${ user_info().email }  
+  Client: ${ client.name.full(middle="full") }  
+  Packet: ${ packet }  
+  Path: ${ path }  
+  Time: ${ total_with_time }  
 ---
 # Domestic Civil Case Information Statement -103
 attachment:
@@ -4546,48 +4568,49 @@ code: |
   modification = False
   contempt = False
   infant_guardianship = False
-  for code in legalserver_case.special_legal_problem_code:
-    match code:
-      case "311 Custody/Visitation Establishment":
-        child_custody_without_divorce = "Yes"
-        #problem_code = custody_only
-      case "312 Custody/Visitation Contempt":
-        contempt = "Yes"
-        #problem_code = contempt
-      case "315 Grandparent Visitation":
-        grandparent_visitation = "Yes"
-      case "316 Custody/Visitation Modification":
-        modification = "Yes"
-      case "321 Divorce with no Custody":
-        divorce_without_children = "Yes"
-        problem_code = "divorce_without"
-      case "322 Divorce with Custody":
-        divorce_with_children = "Yes"
-        problem_code = "divorce_with"
-      case "325 Separate Maintenance (Legal Separation)":
-        separate_maintenance = "Yes"
-      case "326 Annulment":
-        annulment = "Yes"
-      case "328 Divorce Contempt":
-        contempt = "Yes"
-      case "361 Paternity":
-        paternity = "Yes"
-      case "373 Violation of Protective Order (Contempt)":
-        contempt = "Yes"
-      case "382 Child Support Enforcement (Contempt)":
-        contempt = "Yes"
-      case "384 Child Support Modification":
-        modification = "Yes"
-      case "Child Support Establishment":
-        child_support_only = "Yes"
-      case "Guardianship Children Establishment":
-        infant_guardianship = "Yes"
-      case "Guardianship Children Modification":
-        infant_guardianship = "Yes"
-      case "Guardianship Children Revocation":
-        infant_guardianship = "Yes"
-      case "311 Custody":
-        child_custody_without_divorce = "Yes"
+  if defined("legalserver_case.special_legal_problem_code"):
+    for code in legalserver_case.special_legal_problem_code:
+      match code:
+        case "311 Custody/Visitation Establishment":
+          child_custody_without_divorce = "Yes"
+          #problem_code = custody_only
+        case "312 Custody/Visitation Contempt":
+          contempt = "Yes"
+          #problem_code = contempt
+        case "315 Grandparent Visitation":
+          grandparent_visitation = "Yes"
+        case "316 Custody/Visitation Modification":
+          modification = "Yes"
+        case "321 Divorce with no Custody":
+          divorce_without_children = "Yes"
+          problem_code = "divorce_without"
+        case "322 Divorce with Custody":
+          divorce_with_children = "Yes"
+          problem_code = "divorce_with"
+        case "325 Separate Maintenance (Legal Separation)":
+          separate_maintenance = "Yes"
+        case "326 Annulment":
+          annulment = "Yes"
+        case "328 Divorce Contempt":
+          contempt = "Yes"
+        case "361 Paternity":
+          paternity = "Yes"
+        case "373 Violation of Protective Order (Contempt)":
+          contempt = "Yes"
+        case "382 Child Support Enforcement (Contempt)":
+          contempt = "Yes"
+        case "384 Child Support Modification":
+          modification = "Yes"
+        case "Child Support Establishment":
+          child_support_only = "Yes"
+        case "Guardianship Children Establishment":
+          infant_guardianship = "Yes"
+        case "Guardianship Children Modification":
+          infant_guardianship = "Yes"
+        case "Guardianship Children Revocation":
+          infant_guardianship = "Yes"
+        case "311 Custody":
+          child_custody_without_divorce = "Yes"
   if not defined("problem_code"):
     problem_code = ""
 
